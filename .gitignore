@@ -1,0 +1,19 @@
+.venv/
+.tools/
+__pycache__/
+*.pyc
+*.db
+*.db-shm
+*.db-wal
+.env
+
+.venv-utils/
+
+# Local homework reports, logs and historical material
+ОТЧЕТ.md
+evidence/*
+!evidence/utils-original.py
+!evidence/api-original.py
+!evidence/utils_refactored.py
+.DS_Store
+*.zip

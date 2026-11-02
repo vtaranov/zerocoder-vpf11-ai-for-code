@@ -1,0 +1,110 @@
+openapi: 3.1.0
+info:
+  title: VPf11 учебный API пользователей
+  version: 1.0.0
+  description: Только для доверенной учебной среды; аутентификация отсутствует.
+servers:
+  - url: http://127.0.0.1:8080
+paths:
+  /adduser:
+    post:
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  description: После удаления пробелов имя не пустое и не длиннее 200 байт UTF-8.
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/User'
+                  - type: object
+                    required: [status]
+                    properties:
+                      status: {const: ok}
+        '400': {description: Некорректный JSON или имя}
+        '413': {description: Слишком большой запрос}
+        '500': {description: Ошибка сервера}
+  /user/{id}:
+    get:
+      summary: Получить пользователя
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Пользователь найден
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+        '404': {description: Пользователь не найден или идентификатор недопустим}
+        '500': {description: Ошибка сервера}
+  /activate/{id}:
+    post:
+      summary: Отметить существующего пользователя активным
+      description: Три последние операции в памяти одного процесса; после перезапуска список очищается.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Состояние списка после добавления
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, active]
+                properties:
+                  status: {const: ok}
+                  active:
+                    type: array
+                    maxItems: 3
+                    items: {type: integer, minimum: 1}
+        '404': {description: Пользователь отсутствует или идентификатор недопустим}
+        '500': {description: Ошибка сервера}
+  /slow:
+    get:
+      summary: Результат исходного вычисления
+      description: Вычисляется по эквивалентной формуле без фоновой задачи.
+      responses:
+        '200':
+          description: Сумма в виде десятичной строки
+          content:
+            text/plain:
+              schema: {type: string, example: '2474997525000000'}
+  /wrong:
+    get:
+      summary: Учебная демонстрация ответа с ошибкой
+      responses:
+        '500':
+          description: Контролируемая демонстрационная ошибка
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [error]
+                properties:
+                  error: {const: demonstration_error}
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: integer, minimum: 1}
+        name: {type: string}
